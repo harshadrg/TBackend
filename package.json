@@ -1,0 +1,19 @@
+{
+  "name": "taravahbackend",
+  "version": "1.0.0",
+  "description": "backend for taravah.in",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "backend",
+    "taravah",
+    "mongodb",
+    "mongoose",
+    "express",
+    "postman"
+  ],
+  "author": "harshadrg",
+  "license": "ISC"
+}
