@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
- const plantSchema = new Schema({
+
+const plantSchema = new Schema({
     name:[{
       commonName:{
         type:String,
@@ -12,6 +13,11 @@ import mongoose, { Schema } from "mongoose";
         trim:true
       }  
     }],
+    seller:{
+        type:String,
+        require:true,
+        trim
+    },
     description:{
         type:String,
         require:true
@@ -97,6 +103,10 @@ import mongoose, { Schema } from "mongoose";
             uploadImage:[
                 
             ],
+            isListed:{
+                type:Boolean,
+                default:false
+            }
             
         },
         {
