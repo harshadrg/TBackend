@@ -5,18 +5,19 @@ import bcrypt from "bcrypt";
 const userFullNameSchema = new Schema({
     firstName:{
         type: String,
-        require: true,
+        required: true,
         lowercase: true,
         trim: true
     },
     middleName:{
         type: String,
         lowercase: true,
+        default:"",
         trim: true
     },
     lastName:{
         type: String,
-        require: true,
+        required: true,
         lowercase: true,
         trim: true
     }
@@ -24,31 +25,8 @@ const userFullNameSchema = new Schema({
 
 
 
-const userAddressSchema = new Schema({
-    addressLine1:{
-        type:String,
-        require:true
-    },
-    addressLine2:{
-        type:String
-    },
-    city:{
-        type:String,
-        require:true
-    },
-    state:{
-        type:String,
-        require:true
-    },
-    zipCode:{
-        type:String,
-        require:true
-    },
-    country:{
-        type:String,
-        require:true
-    },
-    location:{
+const userLocationSchema = new Schema({
+    locationPoint:{
         type:{
             type: String,
             enum:['Point'],
@@ -56,29 +34,31 @@ const userAddressSchema = new Schema({
         },
         coordinates:{
             type:[Number],
-            require:true,
+            required:true,
             validate:{
                 validator: function (value) {
                     return value.length === 2;
                 },
                 message: props =>`${props.value} must be an array with two numbers[longitude, latitude].`
-            }
+            },
+            default:[0.0,0.0]
         }
     }
 });
-userAddressSchema.index({location:"2dsphere"});
+userLocationSchema.index({location:"2dsphere"});
 
 
 const userSchema = new Schema({
-    userfullName:{
-        type:[userFullNameSchema],
+    userFullName:{
+        type:userFullNameSchema,
+        required: true,
         index: true
     },
     username:{
         type:String,
-        require: true,
         unique:true,
         lowercase:true,
+        required:true,
         trim: true
     },
     email:{
@@ -89,24 +69,59 @@ const userSchema = new Schema({
     },
     phoneNumber:{
         type:String,
-        require:true,
+        required:true,
         unique:true,
         trim:true,
     },
     password:{
         type:String,
-        require:[true, 'Password is required']
+        required:[true, 'Password is requiredd']
+    },
+    profileImage:{
+        type:String
     },
     address:{
-        type:[userAddressSchema],
-        require:true
+        type:[
+            {
+                addressLine1:{
+                    type:String,
+                    required:true
+                },
+                addressLine2:{
+                    type:String,
+                    default:""
+                },
+                city:{
+                    type:String,
+                    required:true
+                },
+                state:{
+                    type:String,
+                    required:true
+                },
+                zipCode:{
+                    type:String,
+                    required:true
+                },
+                country:{
+                    type:String,
+                    required:true
+                }
+            }
+        ],
+        required:true
+    },
+    location:{
+        type:userLocationSchema,
+        default:{}
     },
     cart:{
         type:Schema.Types.ObjectId,
         ref:"Product"
     },
     dob:{
-        type:String
+        type:String,
+        default:""
     },
     refreshToken:{
         type:String,
@@ -119,7 +134,7 @@ const userSchema = new Schema({
 userSchema.pre("save",async function (next) {
     if(!this.isModified("password")) return next();
     
-    this.password = bcrypt.hash(this.password, 10)
+    this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 
