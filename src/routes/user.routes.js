@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { loginUser, logoutUser, registerUser } from "../controllers/user.controller.js";
+import { loginUser, logoutUser, refreshAccessToken, registerUser } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { VerfyJwt } from "../middlewares/auth.middleware.js";
 
@@ -14,8 +14,9 @@ router.route("/register").post(
     ]),
     registerUser
 )
-//loggedInUser
 router.route("/login").post(loginUser)
+//secured routes : user is logged in
 router.route("/logout").post(VerfyJwt, logoutUser)//add custom middleware to access cookei to allow logout and clear refresh token
+router.route("/refresh-token").post(refreshAccessToken)
 
 export default router
