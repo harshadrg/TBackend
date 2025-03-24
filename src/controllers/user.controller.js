@@ -144,7 +144,6 @@ const logoutUser = asyncHandler(async(req, res)=>{
         throw new ApiError(401, "fail to logged out")
     }
 });
-
 const refreshAccessToken = asyncHandler(async(req, res)=>{
     try {
         const incomingRefreshToken = await req.cookies.refreshToken || req.body.refreshToken;
@@ -175,7 +174,7 @@ const refreshAccessToken = asyncHandler(async(req, res)=>{
         .json(
             new ApiResponse(
                 200,
-                {accessToken, refreshToken: newRefreshToken},
+                {},//accessToken, refreshToken: newRefreshToken
                 "Access token refreshed rat"
             )
         )
@@ -184,9 +183,89 @@ const refreshAccessToken = asyncHandler(async(req, res)=>{
         throw new ApiError(401, error?.message || "Invalid refresh token rat")
     }
 })
+
+const changeCurrentPassword = asyncHandler(async(req, res)=>{
+    try {
+        const {currentPassword, newPassword} = req.body
+        const user = await User.findById(req.user._id)
+        const isPassowrdCorrect = await user.isPassowrdCorrect(currentPassword)
+        if (!isPassowrdCorrect) {
+            throw new ApiError(400, "Current password is invalid")
+        }
+        user.password = newPassword
+        await user.save({validateBeforeSave:false})
+        return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {},
+                "password is updated"
+            )
+        )
+    } catch (error) {
+        throw new ApiError(401,"can't change the password ccp")
+    }
+})
+
+const getCurrentUser = asyncHandler(async(req, res)=>{
+    return res
+    .status(200)
+    .json(200, req.user, "current user is fetched successfully")
+})
+
+const updateAccountDetails = asyncHandler(async(req, res)=>{
+    const {userFullName, email, phoneNumber, address} = req.body
+    if (!(userFullName || email || phoneNumber || address)) {
+        throw new ApiError(400,"all fields are required uad")
+    }
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                userFullName: userFullName,
+                email: email,
+                phoneNumber: phoneNumber,// considering not allow user to update phoneNo and email
+                address: address
+            }
+        },
+        {new: true}
+    ).select(" -password -phoneNumber -location")
+    
+    return res
+    .status(200)
+    .json( new ApiResponse(200, user, "Account Details Update Successfully"))
+})
+
+const updateProfileImage = asyncHandler(async(req, res)=>{
+    const profileImageLocalPath = req.file?.path
+    if (!profileImageLocalPath) {
+        throw new ApiError(400, "profile image is missing upi")
+    }
+    
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                profileImage: profileImage.url
+            }
+        },
+        {new:true}
+    ).select(" -password -email -refreshToken -phoneNumber -address -location")
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, "update profile image successfully")
+    )
+})
+
 export {
     registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    changeCurrentPassword,
+    getCurrentUser,
+    updateAccountDetails,
+    updateProfileImage
 }
