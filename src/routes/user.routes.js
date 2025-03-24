@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { loginUser, logoutUser, refreshAccessToken, registerUser } from "../controllers/user.controller.js";
+import { changeCurrentPassword, getCurrentUser, loginUser, logoutUser, refreshAccessToken, registerUser, updateAccountDetails, updateProfileImage } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
-import { VerfyJwt } from "../middlewares/auth.middleware.js";
+import { VerifyJwt } from "../middlewares/auth.middleware.js";
 
 const router = Router()
 
@@ -16,7 +16,11 @@ router.route("/register").post(
 )
 router.route("/login").post(loginUser)
 //secured routes : user is logged in
-router.route("/logout").post(VerfyJwt, logoutUser)//add custom middleware to access cookei to allow logout and clear refresh token
+router.route("/logout").post(VerifyJwt, logoutUser)//add custom middleware to access cookei to allow logout and clear refresh token
 router.route("/refresh-token").post(refreshAccessToken)
+router.route("/change-password").post(VerifyJwt, changeCurrentPassword)
+router.route("/personal-details").get(VerifyJwt, getCurrentUser)
+router.route("/update-details").patch(VerifyJwt, updateAccountDetails)
+router.route("/profile-image").patch(VerifyJwt, upload.single("profileImage"), updateProfileImage)
 
 export default router
