@@ -1,121 +1,40 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
+import { Product } from "./product.model.js";
 
 const plantSchema = new Schema({
-    name:[{
-      commonName:{
-        type:String,
-        require:true,
-        trim:true
-      },  
-      scientificName:{
-        type:String,
-        require:true,
-        trim:true
-      }  
-    }],
-    seller:{
-        type:String,
-        require:true,
-        trim
+    plantType: {
+        type: String,
+        required: true,
+        trim: true
     },
-    description:{
-        type:String,
-        require:true
+    lightNeed: {
+        type: String,
+        required: true
     },
-    price:{
-        type:Number,
-        require:true,
-        min:0
+    waterNeed: {
+        type: String,
+        required: true
     },
-    discount:{
-        type:Number,
-        default:0,
-        min:0,
-        max:99
+    growthZone: {
+        type: String,
+        required: true
     },
-    category:{
-        type:String,
-        require:true,
-        trim:true
+    detailDescription: {
+        type: String,
+        required: true
     },
-    stock:{
-        type:Number,
-        require:true,
-        default:0,
-        min:0
+    maintenanceGuide: {
+        type: String
     },
-    sku:{
-        type:String,
-        unique:true,
-        require:true,
-        trim:true
+    season: {
+        type: String,
+        required: true
     },
-    images:[{
-        url
-    }],
-    plantDetail:{
-        plantType:{
-            type:String,
-            require:true,
-            trim:true
-        },
-        lightNeed:{
-            type:String,
-            require:true
-        },
-        waterNeed:{
-            type:String,
-            require:true
-        },
-        growthZone:{
-            type:String,
-            require:true
-        },
-        detailDescription:{
-            type:String,
-            require:true
-        },
-        maintenanceGuide:{
-            type:String
-        },
-        season:{
-            type:String,
-            require:true
-        },
-        tags:[String]
-    },
-    reviews:[
-        {
-            user:{
-                type:Schema.Types.ObjectId,
-                ref:"Order",
-                require:true
-            },
-            rating:{
-                type:Number,
-                min:1,
-                max:5,
-                require:true
-            },
-            comment:{
-                type:String,
-            },
-            uploadImage:[
-                
-            ],
-            isListed:{
-                type:Boolean,
-                default:false
-            }
-            
-        },
-        {
-            timestamps:true
-        }
-    ]
- },
- {
-    timestamps:true
+    tags: {
+        type: [String],
+        required: true,
+    }
 });
 
-export const Plant = mongoose.model("Plant", plantSchema)
+export const Plant = Product.discriminator("Plant", plantSchema);
+// export const Plant = mongoose.model("Plant", plantSchema)
